@@ -1,10 +1,6 @@
 import pandas as pd
+from sklearn import model_selection
 
-
-def testing():
-    """Stupid toy to ensure I understand this
-    whole 'package' thing correctly"""
-    return ("hey, it works")
 
 def predict(trained_model="foo",text="bar"):
     """DocString for Predict function"""
@@ -12,8 +8,19 @@ def predict(trained_model="foo",text="bar"):
 
 def train_model(training="sna",paramaters="fu"):
     """DocString for model training"""
+
+    #train model
     trained_model = training + paramaters
-    return trained_model
+    return trained_model,results
+
+def load_documents():
+    """Load a directory or tar of files 
+    """
+    #convert to dataframe
+
+    #set aside 20% as test set
+    train_set, test_set = model_selection.train_test_split(df, test_size=0.2)
+
 
 import tarfile,sys
 
@@ -23,9 +30,9 @@ def untar(fname):
         tar = tarfile.open(fname)
         tar.extractall()
         tar.close()
-        print "Extracted in Current Directory"
+        print("Extracted in Current Directory")
     else:
-        print "Not a tar.gz file: '%s '" % sys.argv[0]
+        print("Not a tar.gz file: '%s '" % sys.argv[0])
 
 
 
