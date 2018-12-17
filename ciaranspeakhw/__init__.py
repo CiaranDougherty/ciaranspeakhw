@@ -1,15 +1,38 @@
 import tarfile,sys,os
 import pandas as pd
+from sklearn import preprocessing, svm
 from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 
 def predict(trained_model="foo",text="bar"):
     """DocString for Predict function"""
     return trained_model,text
 
-def train_model(training="sna",paramaters="fu"):
-    """DocString for model training"""
+def get_features(trainDF):
+    """This takes in a dataframe of training data, 
+    splits it up for encoding purposes, and generates features 
+    using TF/IDF on the ngram level"""
 
+    train_x, valid_x, train_y, valid_y = train_test_split(trainDF['text'], 
+                                                trainDF['label'])
+    encoder = preprocessing.LabelEncoder()
+    train_y = encoder.fit_transform(train_y)
+    valid_y = encoder.fit_transform(valid_y)
+
+    #setting up the vectorizer
+    tfidf_vec_ngram = TfidfVectorizer(analyzer='word',
+                        token_pattern=r'\w{1,}',
+                        ngram_range=(2,3), 
+                        max_features=5000)
+    #fitting it (because verbosity)
+    tfidf_vec_ngram.fit(trainDF['text'])
+    xtrain_tfidf_ngram =  tfidf_vec_ngram.transform(train_x)
+    xvalid_tfidf_ngram =  tfidf_vec_ngram.transform(valid_x)
+
+    return train_features, valid_features
+
+def train_model(trainDF,parameters):
     #train model
     trained_model = training + paramaters
     return trained_model,results
@@ -38,8 +61,8 @@ def load_documents(doc_path,hold_aside=0.2):
 
 
     #set aside 20% as test set
-    train_set, test_set = train_test_split(all_docs, test_size=hold_aside)
-    return train_set, test_set
+    trainDF, testDF = train_test_split(all_docs, test_size=hold_aside)
+    return trainDF, testDF
 
 
 
