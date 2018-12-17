@@ -1,6 +1,6 @@
 import tarfile,sys,os
 import pandas as pd
-from sklearn import model_selection
+from sklearn.model_selection import train_test_split
 
 
 def predict(trained_model="foo",text="bar"):
@@ -17,15 +17,28 @@ def train_model(training="sna",paramaters="fu"):
 def load_documents(doc_path,hold_aside=0.2):
     """Loads a directory or tar of files
     using child directory names for labels
-    Returns a pair of Pandas DataForms, for a  Test/Train split
+    Returns a pair of Pandas DataFrames, for a  Test/Train split
     """
     if tarfile.is_tarfile(doc_path):
         doc_path = untar(doc_path)
     
+    label_list,documents = [],[]
+    #get labels and docs matching that label
+    for label in next(os.walk(doc_path))[1]:
+        #grab the document names
+        documents.extend(next(os.walk(os.path.join(doc_path,label)))[2])
+        #and add equivalent number of labels
+        label_list.extend([label] * (len(documents) - len(label_list)))
+        
     #convert to pandas dataframe
+    all_docs = pd.DataFrame()
+    #get the document texts
+    all_docs['text'] = [open(doc).read() for doc in documents]
+    all_docs['label'] = label_list
+
 
     #set aside 20% as test set
-    train_set, test_set = model_selection.train_test_split(df, hold_aside=0.2)
+    train_set, test_set = train_test_split(all_docs, test_size=hold_aside)
     return train_set, test_set
 
 
