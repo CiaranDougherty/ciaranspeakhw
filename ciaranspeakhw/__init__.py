@@ -4,9 +4,21 @@ from sklearn import preprocessing, svm
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
 
+#python 2/3 compliance
+try:
+    import cPickle as pickle
+except ModuleNotFoundError:
+    import pickle
 
-def predict(model,texts,correct=False):
-    """DocString for Predict function"""
+
+def predict(modelfile,texts,correct=False):
+    """Loads user specified Model File and attempts to classify
+    texts according to that specified model"""
+    try:
+        pickle.load(modelfile)
+    except:
+        sys.stderr.write(f"Error opening {modelfile}")
+        raise
 
     #if correct labels are provided, for accuracy/recall
     if correct:
@@ -15,18 +27,18 @@ def predict(model,texts,correct=False):
         return text,classification
 
 
-def get_features(trainDF,hold_aside=0.2):
+def get_features(docDF,hold_aside=0.2):
     """This takes in a dataframe of training data, 
     splits it up for encoding purposes, and generates features 
     using TF/IDF on the ngram level"""
 
     #split defaulting to an 80/20 train/test split.
-    train_x, valid_x, train_y, valid_y = train_test_split(trainDF['text'], 
-                                                trainDF['label'],
+    train_x, test_x, train_y, test_y = train_test_split(docDF['text'], 
+                                                docDF['label'],
                                                 test_size=hold_aside)
     encoder = preprocessing.LabelEncoder()
-    train_y = encoder.fit_transform(train_y)
-    valid_y = encoder.fit_transform(valid_y)
+    train_label = encoder.fit_transform(train_y)
+    test_label = encoder.fit_transform(test_y)
 
     #setting up the vectorizer
     tfidf_vec_ngram = TfidfVectorizer(analyzer='word',
@@ -34,22 +46,31 @@ def get_features(trainDF,hold_aside=0.2):
                         ngram_range=(2,3), 
                         max_features=5000)
     #fitting it (because verbosity)
-    tfidf_vec_ngram.fit(trainDF['text'])
+    tfidf_vec_ngram.fit(docDF['text'])
     xtrain_tfidf_ngram =  tfidf_vec_ngram.transform(train_x)
-    xvalid_tfidf_ngram =  tfidf_vec_ngram.transform(valid_x)
+    xtest_tfidf_ngram =  tfidf_vec_ngram.transform(test_x)
 
-    return train_features, valid_features
+    return xtrain_tfidf_ngram, train_label, xtest_tfidf_ngram, test_label
 
-def train_model(model_type,feature_vector_train, label):
-    """Gives users options of what type of classifier to test"""
+def train_model(model_type,feature_vector_train, label,mfile_name=False):
+    """Gives users options of what type of classifier to test.
+    Saves model object"""
     if model_type in ["Naive Bayes","NB","Bayes","Bayesian"]:
         model = naive_bayes.MultinomialNB().fit(feature_vector_train,label)
-        model_name = "Naive Bayes"
+        model_name = "NB"
     elif model_type in ["SVM","Support Vector Machine"]:
         model = svm.SVC().fit(feature_vector_train,label)
         model_name = "SVM"
     
     sys.stdout.write(f"{model_name} model trained using N-Gram Vectors")
+    if not mfile_name:
+        #default to currenttimestamp
+        mfile_name = f"{model_name}Model{datetime.now().isoformat()[:19]}.pkl"
+
+    with open(mfile_name,'wb') as output:
+        #was going to use -1 as protocol, for highest, 
+        #but this is more legible
+        pickle.dump(model,output,pickle.HIGHEST_PROTOCOL)
     return model
 
 def load_documents(doc_path,hold_aside=0.2):
