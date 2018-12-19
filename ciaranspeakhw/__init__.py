@@ -5,17 +5,25 @@ from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 
-def predict(trained_model="foo",text="bar"):
+def predict(model,texts,correct=False):
     """DocString for Predict function"""
-    return trained_model,text
 
-def get_features(trainDF):
+    #if correct labels are provided, for accuracy/recall
+    if correct:
+        return text,classification,accuracy
+    else:
+        return text,classification
+
+
+def get_features(trainDF,hold_aside=0.2):
     """This takes in a dataframe of training data, 
     splits it up for encoding purposes, and generates features 
     using TF/IDF on the ngram level"""
 
+    #split defaulting to an 80/20 train/test split.
     train_x, valid_x, train_y, valid_y = train_test_split(trainDF['text'], 
-                                                trainDF['label'])
+                                                trainDF['label'],
+                                                test_size=hold_aside)
     encoder = preprocessing.LabelEncoder()
     train_y = encoder.fit_transform(train_y)
     valid_y = encoder.fit_transform(valid_y)
@@ -32,10 +40,17 @@ def get_features(trainDF):
 
     return train_features, valid_features
 
-def train_model(trainDF,parameters):
-    #train model
-    trained_model = training + paramaters
-    return trained_model,results
+def train_model(model_type,feature_vector_train, label):
+    """Gives users options of what type of classifier to test"""
+    if model_type in ["Naive Bayes","NB","Bayes","Bayesian"]:
+        model = naive_bayes.MultinomialNB().fit(feature_vector_train,label)
+        model_name = "Naive Bayes"
+    elif model_type in ["SVM","Support Vector Machine"]:
+        model = svm.SVC().fit(feature_vector_train,label)
+        model_name = "SVM"
+    
+    sys.stdout.write(f"{model_name} model trained using N-Gram Vectors")
+    return model
 
 def load_documents(doc_path,hold_aside=0.2):
     """Loads a directory or tar of files
@@ -59,10 +74,7 @@ def load_documents(doc_path,hold_aside=0.2):
     all_docs['text'] = [open(doc).read() for doc in documents]
     all_docs['label'] = label_list
 
-
-    #set aside 20% as test set
-    trainDF, testDF = train_test_split(all_docs, test_size=hold_aside)
-    return trainDF, testDF
+    return all_docs
 
 
 
