@@ -88,12 +88,27 @@ def untar(fname):
     if len(dir_list) == 1:
         extraction_path = os.path.join(extraction_path,dir_list[0])
         sys.stdout.write(f"Tar extracted to {extraction_path}")
-    else:
-        #I should properly make this a "request user input" scenario
-        # with [os.path.join(extraction_path,d) for d in dir_list] or similar
-        # but between the power outage, and other cases of life,
-        # I'm running short on time for this...
-        sys.stderr.write(f"Unclear which path to use")
+    elif len(dir_list) > 1:
+        counter = 0
+        while counter < 3:
+            user_input = raw_input(f"Please choose an option between 1 and {len(dir_list)}")
+            try:
+                if user_input - 1 in range(len(dir_list)):
+                    dir_list = [dir_list[user_input-1]]
+                    continue
+            except IndexError:
+                sys.stdout.write(f"{user_input} is not a valid option")
+            except TypeError:
+                sys.stdout.write("Numbers only, please")
+            counter += 1
+        # ch
+        extraction_path = os.path.join(extraction_path,dir_list[0])
+        sys.stdout.write(f"Tar extracted to {extraction_path}")
+        
+    #not the prettiest, but I'm not certain how else to make sure that this
+    #only triggers if we haven't narrowed it down.
+    if len(dir_list) != 1:
+        sys.stderr.write("Unclear which path to use. Exiting.")
         exit(1)
 
     return extraction_path
