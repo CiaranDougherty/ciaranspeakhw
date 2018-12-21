@@ -1,6 +1,6 @@
 import tarfile,sys,os
 import pandas as pd
-from sklearn import preprocessing, svm
+from sklearn import preprocessing, svm, metrics
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
 
@@ -11,20 +11,26 @@ except ModuleNotFoundError:
     import pickle
 
 
-def predict(modelfile,texts,correct=False):
+def predict(modelfile,textDF,correct=False):
     """Loads user specified Model File and attempts to classify
     texts according to that specified model"""
-    try:
-        pickle.load(modelfile)
-    except:
-        sys.stderr.write(f"Error opening {modelfile}")
-        raise
+    if modelfile:
+        try:
+            pickle.load(modelfile)
+        except:
+            sys.stderr.write(f"Error opening {modelfile}")
+            raise
+    else:
+        sys.stderr.write("No model file specified.")
+        return
 
+    predictions = modelfile.predict(textDF)
     #if correct labels are provided, for accuracy/recall
     if correct:
-        return text,classification,accuracy
+        class_metrics = metrics.classification_report(predictions,correct)
+        return text,predictions,class_metrics
     else:
-        return text,classification
+        return text,predictions
 
 
 def get_features(docDF,hold_aside=0.2):
@@ -32,6 +38,10 @@ def get_features(docDF,hold_aside=0.2):
     splits it up for encoding purposes, and generates features 
     using TF/IDF on the ngram level"""
 
+    if type(hold_aside) != float:
+        sys.stderr.write(f"Test hold out must be entered as a float. Input: {hold_aside}")
+    elif hold_aside > 1 or hold_aside < 0:
+        sys.stderr.write(f"Test hold out must be between 0 and 1. Input: {hold_aside}")
     #split defaulting to an 80/20 train/test split.
     train_x, test_x, train_y, test_y = train_test_split(docDF['text'], 
                                                 docDF['label'],
@@ -71,12 +81,13 @@ def train_model(model_type,feature_vector_train, label,mfile_name=False):
         #was going to use -1 as protocol, for highest, 
         #but this is more legible
         pickle.dump(model,output,pickle.HIGHEST_PROTOCOL)
+        sys.stdout.write(f"Model written to {output}.")
     return model
 
-def load_documents(doc_path,hold_aside=0.2):
+def load_documents(doc_path):
     """Loads a directory or tar of files
     using child directory names for labels
-    Returns a pair of Pandas DataFrames, for a  Test/Train split
+    Returns a Pandas DataFrame
     """
     if tarfile.is_tarfile(doc_path):
         doc_path = untar(doc_path)
