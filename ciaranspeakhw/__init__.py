@@ -1,6 +1,6 @@
 import tarfile,sys,os
 import pandas as pd
-from sklearn import preprocessing, svm, metrics
+from sklearn import preprocessing, naive_bayes, svm, metrics
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
 
@@ -16,7 +16,8 @@ def predict(modelfile,textDF,correct=False):
     texts according to that specified model"""
     if modelfile:
         try:
-            pickle.load(modelfile)
+            with open(modelfile,'rb') as pickle_file:
+                pickle.load(pickle_file)
         except:
             sys.stderr.write(f"Error opening {modelfile}\n")
             raise
