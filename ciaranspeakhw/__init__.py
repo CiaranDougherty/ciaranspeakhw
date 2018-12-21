@@ -11,13 +11,14 @@ except ModuleNotFoundError:
     import pickle
 
 
-def predict(modelfile,textDF,correct=False):
+def predict(modelfile,textDF,correct=''):
     """Loads user specified Model File and attempts to classify
     texts according to that specified model"""
     if modelfile:
         try:
             with open(modelfile,'rb') as pickle_file:
                 model = pickle.load(pickle_file)
+                sys.stdout.write(f"Opened {modelfile}\n")
         except:
             sys.stderr.write(f"Error opening {modelfile}\n")
             raise
@@ -27,11 +28,12 @@ def predict(modelfile,textDF,correct=False):
 
     predictions = model.predict(textDF)
     #if correct labels are provided, for accuracy/recall
-    if correct:
+    if len(correct):
         class_metrics = metrics.classification_report(predictions,correct)
-        return text,predictions,class_metrics
+        return class_metrics
     else:
         return text,predictions
+        return predictions
 
 
 def get_features(docDF,hold_aside=0.2):

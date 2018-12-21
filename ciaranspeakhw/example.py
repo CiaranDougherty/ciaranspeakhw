@@ -14,4 +14,4 @@ xtrain, label_train, xtest, label_test = ciaranspeakhw.get_features(dataframe)
 
 ciaranspeakhw.train_model("NB",xtrain,label_train,"./TestModel.pkl")
 
-ciaranspeakhw.predict("./TestModel.pkl",xtest,label_test)
+print(ciaranspeakhw.predict("./TestModel.pkl",xtest,label_test))

@@ -1,9 +1,10 @@
 ciaranspeakhw
 
 
-Apologies, as you can see from the commit dates, I didn't actually get this started until Sunday, and I had to learn how to do all the package management stuff, too.
+So, I finally got it running.
 
-If you're willing to let me get back to this at some point, I'd love to finish it, but right now I need to try to deal with the shingles on my roof that came off in the windstorm this weekend.
+Obviously, this isn't the ideal version, but it's functional, and reasonably representative of my coding style.
 
+Thank you for the additional time; between the wind and power troubles, dealing with my roof has been a bit more time consuming than I would have liked.
 
-Hopefully it is a sufficient example of my coding style, design processes, etc.
+The entire thing is _way_ too verbose in what's written to stdout, but I don't recall off the top of my head how to write things to give various verbosity levels of output.
