@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name="ciaranspeakhw",
-    version="0.1",
+    version="0.2",
     description="code style example",
     url="https://github.com/CiaranDougherty/ciaranspeakhw",
     author="Ciaran Dougherty",
