@@ -4,10 +4,11 @@ import ciaranspeakhw,sys
 
 filename=sys.argv[1]
 
-if sys.argv[2]:
+if len(sys.argv) > 2:
     hold_aside = sys.argv[2]
 
 dataframe = ciaranspeakhw.load_documents(filename)
+print("Dataframe loaded")
 
 xtrain, label_train, xtest, label_test = get_features(dataframe)
 

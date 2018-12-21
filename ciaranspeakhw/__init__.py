@@ -135,6 +135,9 @@ def untar(fname):
     elif len(dir_list) > 1:
         counter = 0
         while counter < 3:
+            dir_counter = 1
+            for directory in dir_list:
+                print(f"{dir_counter}: {directory}")
             user_input = raw_input(f"Please choose an option between 1 and {len(dir_list)}")
             try:
                 if user_input - 1 in range(len(dir_list)):
