@@ -17,7 +17,7 @@ def predict(modelfile,textDF,correct=False):
     if modelfile:
         try:
             with open(modelfile,'rb') as pickle_file:
-                pickle.load(pickle_file)
+                model = pickle.load(pickle_file)
         except:
             sys.stderr.write(f"Error opening {modelfile}\n")
             raise
@@ -25,7 +25,7 @@ def predict(modelfile,textDF,correct=False):
         sys.stderr.write("No model file specified.\n")
         return
 
-    predictions = modelfile.predict(textDF)
+    predictions = model.predict(textDF)
     #if correct labels are provided, for accuracy/recall
     if correct:
         class_metrics = metrics.classification_report(predictions,correct)
